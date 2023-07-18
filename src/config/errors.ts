@@ -1,0 +1,41 @@
+/**
+ * ErrorCode definition
+ *
+ * Auth error:      1xx
+ *
+ * Request error:   4xx
+ * Server error:    5xx
+ *
+ * @export
+ * @enum {number}
+ */
+export enum ErrorCode {
+    // VERIFY ERROR
+    VERIFY_FAILED = 1,
+
+    // AUTH ERROR
+    AUTH_ACCOUNT_EXISTS = 100,
+    AUTH_ACCOUNT_NOT_FOUND = 101,
+    AUTH_ACCOUNT_NOT_ACTIVE = 102,
+    AUTH_ACCOUNT_BLOCKED = 103,
+    AUTH_PASSWORD_NOT_MATCH = 104,
+
+    AUTH_REQUEST_NOT_FOUND = 110,
+    AUTH_REQUEST_OTP_INVALID = 111,
+    AUTH_REQUEST_IDENTITY_INVALID = 112,
+    AUTH_REQUEST_PASSWORD_INVALID = 113,
+    AUTH_REQUEST_METHOD_NOT_SUPPORTED = 114,
+    AUTH_REQUEST_TOO_MANY = 115,
+
+    // REQUEST ERROR
+    REQUEST_VALIDATION_ERROR = 400,
+    REQUEST_UNAUTHORIZED = 401,
+    REQUEST_FORBIDDEN = 403,
+    REQUEST_NOT_FOUND = 404,
+
+    // SERVER ERROR
+    SERVER_ERROR = 500,
+    SERVER_AUTH_ERROR = 501, // and not know why
+
+    //
+}
