@@ -20,17 +20,26 @@ export interface IPostResponse {
     id: string;
     user_id: number;
     description: string;
-    images: string[];
+    images_url: string[];
     type: PostType;
     like_count: number;
     comment_count: number;
     allow_comment: boolean;
     status: PostStatus;
-    top_comments: {
-        user_id: number;
-        content: string;
-        created_at: number;
-    };
+    top_comments: [
+        {
+            user_id: number;
+            user_name: string;
+            content: string;
+            created_at: number;
+        },
+    ];
+    top_likes: [
+        {
+            user_id: number;
+            user_name: string;
+        },
+    ];
     created_at: number;
 }
 
@@ -38,17 +47,25 @@ export interface IPost extends Document, ITimestamp {
     _id: mongoose.Types.ObjectId;
     user_id: number;
     description: string;
-    images: string[];
+    images_url: string[];
     type: PostType;
     like_count: number;
     comment_count: number;
     allow_comment: boolean;
     status: PostStatus;
-    top_comments: {
-        user_id: number;
-        content: string;
-        created_at: Date;
-    };
+    top_comments: [
+        {
+            user_id: number;
+            content: string;
+            created_at: Date;
+        },
+    ];
+    top_likes: [
+        {
+            user_id: number;
+            user_name: string;
+        },
+    ];
 
     transform(): IPostResponse;
 }
@@ -57,46 +74,86 @@ const PostSchema: Schema = new Schema(
     {
         user_id: { type: Number, required: true },
         description: { type: String, trim: true, default: '' },
-        images: [{ type: String }],
-        type: { type: Number, enum: values(PostType), default: PostType.POST },
+        images_url: [{ type: String }],
+        type: {
+            type: Number,
+            enum: {
+                values: values(PostType),
+            },
+            default: PostType.POST,
+        },
         like_count: { type: Number, default: 0 },
         comment_count: { type: Number, default: 0 },
         allow_comment: { type: Boolean, default: true },
-        status: { type: Number, enum: values(PostStatus), default: PostStatus.PUBLIC },
+        status: {
+            type: Number,
+            enum: {
+                values: values(PostStatus),
+            },
+            default: PostStatus.PUBLIC,
+        },
 
         // display on new feed (click to see more will call another api)
-        top_comments: {
-            type: new Schema(
-                {
-                    user_id: { type: Number },
-                    content: { type: String, trim: true, default: '' },
-                    created_at: { type: Date },
-                },
-                { _id: false },
-            ),
-        },
+        top_comments: [
+            {
+                type: new Schema(
+                    {
+                        user_id: { type: Number },
+                        content: { type: String, trim: true, default: '' },
+                        created_at: { type: Date },
+                    },
+                    { _id: false },
+                ),
+            },
+        ],
+        top_likes: [
+            {
+                type: new Schema(
+                    {
+                        user_id: { type: Number },
+                        user_name: { type: String },
+                    },
+                    { _id: false },
+                ),
+            },
+        ],
     },
     { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } },
 );
 
 PostSchema.method({
     transform(): IPostResponse {
+        const topComments = this.top_comments.map((comment) => {
+            return {
+                user_id: comment.user_id,
+                user_name: comment.user_name,
+                content: comment.content,
+                created_at: moment(comment.created_at).unix(),
+            };
+        });
+        const topLikes = this.top_likes.map((like) => {
+            return {
+                user_id: like.user_id,
+                user_name: like.user_name,
+            };
+        });
         return {
             id: this._id.toHexString(),
             user_id: this.user_id,
             description: this.description,
-            images: this.images,
+            images_url: this.images_url,
             type: this.type,
             like_count: this.like_count,
             comment_count: this.comment_count,
             allow_comment: this.allow_comment,
             status: this.status,
-            top_comments: this.top_comments,
+            top_comments: topComments,
             created_at: moment(this.created_at).unix(),
+            top_likes: topLikes,
         };
     },
 });
 
 PostSchema.index({ user_id: 1 });
 
-export default mongoose.model('Post', PostSchema);
+export default mongoose.model<IPost>('Post', PostSchema);
