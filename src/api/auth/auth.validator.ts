@@ -20,3 +20,9 @@ export const signUp: schema = {
         password2: Joi.string().required(),
     }),
 };
+
+export const refreshToken: schema = {
+    body: Joi.object({
+        refresh_token: Joi.string().required(),
+    }),
+};

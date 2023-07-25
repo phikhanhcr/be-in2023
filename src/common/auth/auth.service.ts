@@ -85,4 +85,38 @@ export class AuthService {
 
         return userToken;
     }
+
+    static async refreshToken(refreshToken: string): Promise<IUserToken> {
+        let token = await UserToken.findOne({ refresh_token: refreshToken });
+        if (!token) {
+            throw new APIError({
+                message: `auth.refresh-token.${httpStatus.BAD_REQUEST}.${ErrorCode.AUTH_REQUEST_NOT_FOUND}`,
+                status: httpStatus.BAD_REQUEST,
+                errorCode: ErrorCode.AUTH_REQUEST_NOT_FOUND,
+            });
+        }
+        const user = await User.findById(token.user_id);
+
+        if (!user) {
+            throw new APIError({
+                message: `auth.refresh-token.${httpStatus.BAD_REQUEST}.${ErrorCode.AUTH_REQUEST_NOT_FOUND}`,
+                status: httpStatus.BAD_REQUEST,
+                errorCode: ErrorCode.AUTH_REQUEST_NOT_FOUND,
+            });
+        }
+
+        const accessToken = TokenService.generateAccessToken({ id: user.id, name: user.name });
+
+        token = await UserToken.findOneAndUpdate(
+            { refresh_token: refreshToken },
+            {
+                access_token: accessToken.token,
+                expired_at: accessToken.expired_at,
+            },
+            {
+                new: true,
+            },
+        );
+        return token;
+    }
 }

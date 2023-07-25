@@ -66,7 +66,7 @@ export class TokenService {
     }
 
     // refresh token
-    static async refreshTOken(refreshToken: string): Promise<AccessToken> {
+    static async refreshToken(refreshToken: string): Promise<AccessToken> {
         const userToken = await UserToken.findOne({ refresh_token: refreshToken });
         if (!userToken) {
             throw new APIError({

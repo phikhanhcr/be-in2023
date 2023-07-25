@@ -38,4 +38,10 @@ export enum ErrorCode {
     SERVER_AUTH_ERROR = 501, // and not know why
 
     //
+
+    POST_NOT_FOUND = 200,
+    POST_LIKED = 201,
+    POST_UNLIKED = 202,
+
+    COMMENT_NOT_FOUND = 300,
 }

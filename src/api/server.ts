@@ -7,6 +7,7 @@ import logger from '@common/logger';
 import { NODE_ENV } from '@config/environment';
 import i18nMiddleware from 'i18next-http-middleware';
 import i18n from '@common/i18n';
+import cors from 'cors';
 import { ResponseMiddleware } from './response.middleware';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -73,6 +74,7 @@ export class ExpressServer {
                 },
             }),
         );
+        server.use(cors({ origin: '*' }));
     }
 
     private setupStandardMiddlewares(server: Express) {

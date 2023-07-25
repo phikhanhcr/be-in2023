@@ -5,12 +5,16 @@ import testRoutes from './test/test.route';
 import userRoutes from './user/user.route';
 import authRoutes from './auth/auth.route';
 import postRoutes from './post/post.route';
-router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
-router.use('/posts', postRoutes);
+import commentRoutes from './comment/comment.route';
 
 if (NODE_ENV === 'development') {
     router.use('/local', testRoutes);
 }
+
+router.use('/api/auth', authRoutes);
+router.use('/api/users', userRoutes);
+
+router.use('/api/posts', postRoutes);
+router.use('/api/comments', commentRoutes);
 
 export default router;
