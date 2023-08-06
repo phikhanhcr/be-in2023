@@ -13,7 +13,7 @@ import { SequenceIdService, SequenceIdType } from '@common/sequence-id/sequence-
 
 export class AuthService {
     static async signIn(req: ISignInRequest): Promise<IUser> {
-        const user = await User.findOne({ username: req.username });
+        const user = await User.findOne({ name: req.username });
 
         if (!user) {
             throw new APIError({

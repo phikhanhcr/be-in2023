@@ -10,7 +10,7 @@ import { APIError } from '@common/error/api.error';
 import User from '@common/user/User';
 import { ErrorCode } from '@config/errors';
 import httpStatus from 'http-status';
-import Post, { IPost, PostStatus, PostType } from '@common/post/Post';
+import Post, { IPost, IPostResponse, PostStatus, PostType } from '@common/post/Post';
 import UserLke, { LikeStatus } from './UserLke';
 import eventbus from '@common/eventbus';
 import { EVENT_POST_LIKED, EVENT_POST_UNLIKED } from './post.event';
@@ -59,16 +59,35 @@ export class PostService {
     }
 
     // @Todo
-    static async getMewFeed(req: IGetPOstByTypeRequest): Promise<IPost[]> {
+    static async getMewFeed(auth: IAuthUser): Promise<IPostResponse[]> {
         // dp something
-        const posts = await Post.find({ user_id: req.user_id, type: req.type });
-        return posts;
+        const posts = await Post.find({});
+        const postResponse: IPostResponse[] = [];
+        await Promise.all(
+            posts.map(async (post) => {
+                const postsTransform = post.transform();
+                const userLike = await UserLke.findOne({
+                    user_id: auth.id,
+                    reference_id: post._id,
+                    status: LikeStatus.LIKE,
+                    type: PostType.POST,
+                });
+                console.log({ userLike });
+                postsTransform.is_liked = false;
+                if (userLike) {
+                    postsTransform.is_liked = true;
+                }
+
+                postResponse.push(postsTransform);
+            }),
+        );
+
+        return postResponse;
     }
 
     // @Todo
     static async like(auth: IAuthUser, req: ILikePostRequest): Promise<void> {
-        // dp something
-        const post = await Post.findOne({
+        let post = await Post.findOne({
             _id: req.post_id,
             status: PostStatus.PUBLIC,
         });
@@ -110,14 +129,25 @@ export class PostService {
             },
         );
 
+        post = await Post.findOneAndUpdate(
+            {
+                _id: req.post_id,
+                status: PostStatus.PUBLIC,
+            },
+            {
+                $inc: { like_count: 1 },
+            },
+            { new: true },
+        );
+
         // check user like post or not
-        eventbus.emit(EVENT_POST_LIKED, userLike);
+        eventbus.emit(EVENT_POST_LIKED, post, auth);
     }
 
     static async unlike(auth: IAuthUser, req: IUnlikePostRequest): Promise<void> {
         // dp something
 
-        const post = await Post.findOne({
+        let post = await Post.findOne({
             _id: req.post_id,
             status: PostStatus.PUBLIC,
         });
@@ -163,8 +193,19 @@ export class PostService {
             },
         );
 
+        post = await Post.findOneAndUpdate(
+            {
+                _id: req.post_id,
+                status: PostStatus.PUBLIC,
+            },
+            {
+                $inc: { like_count: -1 },
+            },
+            { new: true },
+        );
+
         // check user like post or not
-        eventbus.emit(EVENT_POST_UNLIKED, userUnLike);
+        eventbus.emit(EVENT_POST_UNLIKED, post, auth);
         // EVENT SOURCE SEND NOTIFICATION TO AUTHOR
     }
 }

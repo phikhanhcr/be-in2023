@@ -3,6 +3,10 @@ import { ExpressServer } from '@api/server';
 import { DatabaseAdapter } from '@common/infrastructure/database.adapter';
 import { RedisAdapter } from '@common/infrastructure/redis.adapter';
 import logger from '@common/logger';
+import { PostEvent } from '@common/post/post.event';
+import { CommentEvent } from '@common/comment/comment.event';
+import { EventSourceService } from '@common/event-source/event-source.service';
+import { KafkaAdapter } from '@common/infrastructure/kafka.adapter';
 // import { SocketService } from '@common/socket/socket.service';
 // import { MQTTAdapter } from '@common/mqtt/MQTTAdapter';
 // import { KafkaAdapter } from '@common/infrastructure/kafka.adapter';
@@ -21,9 +25,9 @@ export class Application {
 
         // await SocketService.getSocketInstance();
 
-        if (RUN_IN_LOCALHOST) {
-            // await KafkaAdapter.getProducer();
-        }
+        // if (RUN_IN_LOCALHOST) {
+        // }
+        await KafkaAdapter.getProducer();
 
         Application.registerEvents();
 
@@ -70,7 +74,7 @@ export class Application {
     private static shutdownProperly(exitCode: number, express: ExpressServer) {
         Promise.resolve()
             .then(() => express.kill())
-            // .then(() => KafkaAdapter.disconnect())
+            .then(() => KafkaAdapter.disconnect())
             .then(() => RedisAdapter.disconnect())
             .then(() => DatabaseAdapter.disconnect())
             .then(() => {
@@ -88,5 +92,8 @@ export class Application {
      */
     private static registerEvents() {
         // do something{
+        PostEvent.register();
+        CommentEvent.register();
+        EventSourceService.register();
     }
 }

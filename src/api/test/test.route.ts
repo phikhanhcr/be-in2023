@@ -4,6 +4,6 @@ import { TestController } from './test.controller';
 
 const router = express.Router();
 
-router.get('/common', AuthMiddleware.requireAuth, TestController.common);
+router.get('/common', TestController.common);
 
 export default router;

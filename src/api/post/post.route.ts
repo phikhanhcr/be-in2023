@@ -25,7 +25,7 @@ router.get(
     '/detail/:post_id',
     AuthMiddleware.requireAuth,
     validate(detailPost, { context: true }),
-    PostController.newFeed,
+    PostController.getById,
 );
 
 export default router;

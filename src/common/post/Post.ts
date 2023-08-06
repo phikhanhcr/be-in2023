@@ -1,6 +1,7 @@
 // tslint:disable-next-line:no-var-requires
 
 import { ITimestamp } from '@common/timestamp.interface';
+import { DEFAULT_USER_AVATAR } from '@config/user';
 import { values } from 'lodash';
 import moment from 'moment-timezone';
 import mongoose, { Document, Schema } from 'mongoose';
@@ -19,6 +20,8 @@ export enum PostStatus {
 export interface IPostResponse {
     id: string;
     user_id: number;
+    username: string;
+    user_avatar: string;
     description: string;
     images_url: string[];
     type: PostType;
@@ -40,12 +43,15 @@ export interface IPostResponse {
             user_name: string;
         },
     ];
+    is_liked?: boolean;
     created_at: number;
 }
 
 export interface IPost extends Document, ITimestamp {
     _id: mongoose.Types.ObjectId;
     user_id: number;
+    username: string;
+    user_avatar: string;
     description: string;
     images_url: string[];
     type: PostType;
@@ -73,6 +79,8 @@ export interface IPost extends Document, ITimestamp {
 const PostSchema: Schema = new Schema(
     {
         user_id: { type: Number, required: true },
+        username: { type: String, default: '' },
+        user_avatar: { type: String, default: '' },
         description: { type: String, trim: true, default: '' },
         images_url: [{ type: String }],
         type: {
@@ -115,6 +123,7 @@ const PostSchema: Schema = new Schema(
                     },
                     { _id: false },
                 ),
+                default: [],
             },
         ],
     },
@@ -140,6 +149,8 @@ PostSchema.method({
         return {
             id: this._id.toHexString(),
             user_id: this.user_id,
+            username: this.username,
+            user_avatar: this.user_avatar ? this.user_avatar : DEFAULT_USER_AVATAR,
             description: this.description,
             images_url: this.images_url,
             type: this.type,

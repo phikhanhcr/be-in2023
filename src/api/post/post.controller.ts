@@ -59,12 +59,11 @@ export class PostController {
     static async newFeed(req: Request, res: Response, next: NextFunction): Promise<void> {
         // do something
         try {
-            const body = { ...req.body } as IGetPOstByTypeRequest;
-            const result = await PostService.getMewFeed(body);
+            const result = await PostService.getMewFeed(req.user);
 
             res.sendJson({
                 message: 'Operation executed successfully!',
-                data: result.map((ele) => ele.transform()),
+                data: result,
             });
         } catch (error) {
             next(error);

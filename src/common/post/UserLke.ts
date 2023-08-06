@@ -17,6 +17,7 @@ export enum LikeStatus {
 export interface IUserLikeResponse {
     id: string;
     user_id: number;
+    username: string;
     reference_id: string;
     type: LikeType;
     like_count: number;
@@ -26,6 +27,7 @@ export interface IUserLikeResponse {
 export interface IUserLike extends Document, ITimestamp {
     _id: mongoose.Types.ObjectId;
     user_id: number;
+    username: string;
     // can be post, comment
     reference_id: mongoose.Types.ObjectId;
     type: LikeType;
@@ -38,6 +40,7 @@ export interface IUserLike extends Document, ITimestamp {
 const UserLikeSchema: Schema = new Schema(
     {
         user_id: { type: Number, required: true },
+        username: { type: String, default: null },
         reference_id: { type: mongoose.Types.ObjectId, default: null, required: true },
         type: {
             type: Number,
@@ -63,6 +66,7 @@ UserLikeSchema.method({
         return {
             id: this._id.toHexString(),
             user_id: this.user_id,
+            username: this.username,
             reference_id: this.reference_id.toHexString(),
             type: this.type,
             like_count: this.like_count,
