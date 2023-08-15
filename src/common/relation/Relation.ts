@@ -5,7 +5,7 @@ import { ITimestamp } from '@common/timestamp.interface';
 export enum RelationStatus {
     NONE = 1,
     PENDING = 2,
-    FLOWING = 3,
+    FOLLOWING = 3,
     RECEIVE = 4,
     REJECT = 5,
     BLOCK = 6,

@@ -107,6 +107,7 @@ const PostSchema: Schema = new Schema(
                 type: new Schema(
                     {
                         user_id: { type: Number },
+                        user_name: { type: String },
                         content: { type: String, trim: true, default: '' },
                         created_at: { type: Date },
                     },

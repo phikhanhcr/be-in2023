@@ -24,6 +24,7 @@ export interface IUserResponse {
     // status: UserStatus;
     // gender: UserGender;
     avatar: string;
+    is_private: boolean;
 }
 
 export interface IUser extends Document, ITimestamp {
@@ -34,7 +35,7 @@ export interface IUser extends Document, ITimestamp {
     password: string;
     raw: string;
     avatar: string;
-
+    is_private: boolean;
     checkPassword(password: string): boolean;
     transform(): IUserResponse;
 }
@@ -48,6 +49,7 @@ const UserSchema: Schema = new Schema(
         password: { type: String, required: true },
         raw: { type: String, required: true },
         avatar: { type: String, default: '' },
+        is_private: { type: Boolean, default: false },
     },
     {
         timestamps: {
@@ -67,6 +69,7 @@ UserSchema.method({
             email: this.email,
             name: this.name,
             avatar: this.avatar !== '' ? this.avatar : DEFAULT_USER_AVATAR,
+            is_private: this.is_private,
         };
     },
     checkPassword(password: string): boolean {

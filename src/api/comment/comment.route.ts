@@ -7,15 +7,15 @@ import { createComment, getComments } from './comment.validator';
 const router = express.Router();
 
 router.post(
-    '/get',
-    // AuthMiddleware.requireAuth,
+    '/get-comments-by-post',
+    AuthMiddleware.requireAuth,
     validate(getComments, { context: true }),
     CommentController.get,
 );
 
 router.post(
     '/create',
-    // AuthMiddleware.requireAuth,
+    AuthMiddleware.requireAuth,
     validate(createComment, { context: true }),
     CommentController.create,
 );

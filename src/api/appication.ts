@@ -91,7 +91,6 @@ export class Application {
      * Handle register event
      */
     private static registerEvents() {
-        // do something{
         PostEvent.register();
         CommentEvent.register();
         EventSourceService.register();

@@ -44,4 +44,10 @@ export enum ErrorCode {
     POST_UNLIKED = 202,
 
     COMMENT_NOT_FOUND = 300,
+
+    // RELATION
+    RELATION_NOT_FOUND = 600,
+    RELATION_ALREADY_EXISTS = 601,
+
+    // USER ERRORS
 }

@@ -41,6 +41,7 @@ const UserLikeSchema: Schema = new Schema(
     {
         user_id: { type: Number, required: true },
         username: { type: String, default: null },
+        // post, comment
         reference_id: { type: mongoose.Types.ObjectId, default: null, required: true },
         type: {
             type: Number,

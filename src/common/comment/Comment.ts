@@ -10,12 +10,14 @@ export interface ICommentResponse {
     user_avatar: string;
     content: string;
     parent_id: string;
+    parent_name: string;
     right: number;
     left: number;
     post_id: string;
     is_deleted: boolean;
     level: number;
     reply_count: number;
+    like_count: number;
     created_at: number;
 }
 
@@ -26,6 +28,7 @@ export interface IComment extends Document, ITimestamp {
     user_avatar: string;
     content: string;
     parent_id: mongoose.Types.ObjectId;
+    parent_name: string;
     right: number;
     left: number;
     level: number;
@@ -33,6 +36,7 @@ export interface IComment extends Document, ITimestamp {
     is_deleted: boolean;
     reply_count: number;
     created_at: Date;
+    like_count: number;
 
     transform(): ICommentResponse;
 }
@@ -44,12 +48,14 @@ const CommentSchema: Schema = new Schema(
         user_avatar: { type: String, trim: true, default: null },
         content: { type: String, trim: true, require: true },
         parent_id: { type: mongoose.Types.ObjectId, default: null },
+        parent_name: { type: String, default: null },
         post_id: { type: mongoose.Types.ObjectId, required: true },
         level: { type: Number, default: null },
         right: { type: Number, default: null },
         left: { type: Number, default: null },
         is_deleted: { type: Boolean, default: false },
         reply_count: { type: Number, default: 0 },
+        like_count: { type: Number, default: 0 },
     },
     {
         timestamps: {
@@ -68,6 +74,7 @@ CommentSchema.method({
             user_avatar: this.user_avatar ? this.user_avatar : DEFAULT_USER_AVATAR,
             content: this.content,
             parent_id: this.parent_id ? this.parent_id.toHexString() : null,
+            parent_name: this.parent_name ? this.parent_name : null,
             right: this.right,
             left: this.left,
             level: this.level,
@@ -75,6 +82,7 @@ CommentSchema.method({
             is_deleted: this.is_deleted,
             reply_count: this.reply_count,
             created_at: moment(this.created_at).unix(),
+            like_count: this.like_count,
         };
     },
 });

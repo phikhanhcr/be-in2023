@@ -6,11 +6,8 @@ import { NextFunction, Request, Response } from 'express';
 export class CommentController {
     static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // const { user } = req;
-            const user = {
-                id: 1,
-                name: 'test',
-            };
+            const { user } = req;
+
             const body = { ...req.body } as ICreateCommentRequest;
             const result = await CommentService.create(user, body);
 
@@ -25,11 +22,8 @@ export class CommentController {
 
     static async get(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // const { user } = req;
-            const user = {
-                id: 1,
-                name: 'test',
-            };
+            const { user } = req;
+
             const body = { ...req.body } as IGetCommentsRequest;
             const result = await CommentService.getComments(user, body);
 

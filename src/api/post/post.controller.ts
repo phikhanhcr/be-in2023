@@ -14,7 +14,6 @@ export class PostController {
         try {
             const { user } = req;
             const body = { ...req.body } as ICreatePostRequest;
-            console.log({ body });
             const result = await PostService.create(user, body);
 
             res.sendJson({

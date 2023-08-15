@@ -16,7 +16,7 @@ export const createPost: schema = {
             .required(),
         status: Joi.number()
             .valid(...values(PostStatus))
-            .required(),
+            .default(PostStatus.PUBLIC),
         allow_comment: Joi.boolean().default(true),
     }),
 };

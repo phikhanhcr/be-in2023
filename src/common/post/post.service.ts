@@ -11,7 +11,7 @@ import User from '@common/user/User';
 import { ErrorCode } from '@config/errors';
 import httpStatus from 'http-status';
 import Post, { IPost, IPostResponse, PostStatus, PostType } from '@common/post/Post';
-import UserLke, { LikeStatus } from './UserLke';
+import UserLke, { LikeStatus, LikeType } from './UserLke';
 import eventbus from '@common/eventbus';
 import { EVENT_POST_LIKED, EVENT_POST_UNLIKED } from './post.event';
 
@@ -33,6 +33,8 @@ export class PostService {
 
         const post = await Post.create({
             user_id: user._id,
+            username: user.name,
+            user_avatar: user.avatar,
             images_url: req.images_url,
             description: req.description,
             type: PostType.POST,
@@ -70,14 +72,12 @@ export class PostService {
                     user_id: auth.id,
                     reference_id: post._id,
                     status: LikeStatus.LIKE,
-                    type: PostType.POST,
+                    type: LikeType.POST,
                 });
-                console.log({ userLike });
                 postsTransform.is_liked = false;
                 if (userLike) {
                     postsTransform.is_liked = true;
                 }
-
                 postResponse.push(postsTransform);
             }),
         );

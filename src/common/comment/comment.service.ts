@@ -6,6 +6,8 @@ import Post from '@common/post/Post';
 import httpStatus from 'http-status';
 import { APIError } from '@common/error/api.error';
 import User from '@common/user/User';
+import { EVENT_COMMENT_CREATED } from './comment.event';
+import eventbus from '@common/eventbus';
 
 export class CommentService {
     static async create(auth: IAuthUser, req: ICreateCommentRequest): Promise<IComment> {
@@ -21,6 +23,7 @@ export class CommentService {
         let right;
         let newComment;
         let level = 1;
+        let parentName;
         const user = await User.findById(auth.id);
         if (req.parent_id) {
             // get parent comment
@@ -38,6 +41,7 @@ export class CommentService {
             left = parentComment.right;
             right = parentComment.right + 1;
 
+            parentName = parentComment.user_name;
             // update right of parent comment
             // bulk write operator
 
@@ -74,8 +78,11 @@ export class CommentService {
                 left,
                 parent_id: req.parent_id,
                 level,
+                parent_name: parentName,
             }),
         );
+
+        eventbus.emit(EVENT_COMMENT_CREATED, newComment);
 
         return newComment;
     }
