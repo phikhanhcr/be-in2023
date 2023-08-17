@@ -28,3 +28,15 @@ export const unFollowing: schema = {
         receiver_id: Joi.number().required(),
     }),
 };
+
+export const listFollowers: schema = {
+    query: Joi.object({
+        user_id: Joi.number().allow(null),
+    }),
+};
+
+export const listFollowing: schema = {
+    query: Joi.object({
+        user_id: Joi.number().allow(null),
+    }),
+};

@@ -1,4 +1,10 @@
-import { IAcceptRequest, IRejectRequest, IRequestFollowing, IUnFollowRequest } from '@api/relation/relation.request';
+import {
+    IAcceptRequest,
+    IRejectRequest,
+    IRequestFollowing,
+    ITargetUserRequest,
+    IUnFollowRequest,
+} from '@api/relation/relation.request';
 import { IAuthUser } from '@common/auth/auth.interface';
 import Relation, { IRelation, RelationStatus } from './Relation';
 import User from '@common/user/User';
@@ -110,15 +116,27 @@ export class RelationService {
     }
 
     // IUnFollowRequest
-    static async listFollowing(auth: IAuthUser): Promise<IRelation[]> {
+    static async listFollowing(auth: IAuthUser, req: ITargetUserRequest): Promise<IRelation[]> {
         // pagination or not
-        const relations = await Relation.find({ sender_id: auth.id, status: RelationStatus.FOLLOWING });
+        const targetUserId = req.user_id || auth.id;
+
+        const relations = await Relation.find({ sender_id: targetUserId, status: RelationStatus.FOLLOWING }).populate({
+            path: 'user_receiver',
+        });
+        // find relation between and receiver_id
         return relations;
     }
 
-    static async listFollower(auth: IAuthUser): Promise<IRelation[]> {
+    static async listFollower(auth: IAuthUser, req: ITargetUserRequest): Promise<IRelation[]> {
         // pagination or not
-        const relations = await Relation.find({ receiver_id: auth.id, status: RelationStatus.FOLLOWING });
+        const targetUserId = req.user_id || auth.id;
+
+        const relations = await Relation.find({ receiver_id: targetUserId, status: RelationStatus.FOLLOWING }).populate(
+            {
+                path: 'user_sender',
+            },
+        );
+        // find relation between and sender_id
         return relations;
     }
 }

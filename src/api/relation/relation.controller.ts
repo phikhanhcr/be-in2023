@@ -1,6 +1,12 @@
 import { RelationService } from '@common/relation/relation.service';
 import { NextFunction, Request, Response } from 'express';
-import { IAcceptRequest, IRejectRequest, IRequestFollowing, IUnFollowRequest } from './relation.request';
+import {
+    IAcceptRequest,
+    IRejectRequest,
+    IRequestFollowing,
+    ITargetUserRequest,
+    IUnFollowRequest,
+} from './relation.request';
 
 export class RelationController {
     static async request(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -67,10 +73,11 @@ export class RelationController {
         // do something
         try {
             const { user } = req;
-            await RelationService.listFollowing(user);
+            const query: ITargetUserRequest = { ...req.query };
+            const data = await RelationService.listFollowing(user, query);
             res.sendJson({
                 message: 'Operation executed successfully!',
-                data: {},
+                data: data.map((ele) => ele.transform()),
             });
         } catch (error) {
             next(error);
@@ -80,10 +87,11 @@ export class RelationController {
     static async listFollower(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { user } = req;
-            await RelationService.listFollower(user);
+            const query: ITargetUserRequest = { ...req.query };
+            const data = await RelationService.listFollower(user, query);
             res.sendJson({
                 message: 'Operation executed successfully!',
-                data: {},
+                data: data.map((ele) => ele.transform()),
             });
         } catch (error) {
             next(error);

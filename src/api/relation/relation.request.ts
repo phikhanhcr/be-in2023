@@ -13,3 +13,7 @@ export interface IRejectRequest {
 export interface IUnFollowRequest {
     receiver_id: number;
 }
+
+export interface ITargetUserRequest {
+    user_id?: number;
+}
