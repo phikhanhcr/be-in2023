@@ -27,7 +27,7 @@ export class Application {
 
         // if (RUN_IN_LOCALHOST) {
         // }
-        await KafkaAdapter.getProducer();
+        // await KafkaAdapter.getProducer();
 
         Application.registerEvents();
 

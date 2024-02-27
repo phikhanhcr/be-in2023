@@ -25,6 +25,8 @@ export interface IUserResponse {
     // gender: UserGender;
     avatar: string;
     is_private: boolean;
+    bio: string;
+    device_id: string;
 }
 
 export interface IUser extends Document, ITimestamp {
@@ -36,6 +38,8 @@ export interface IUser extends Document, ITimestamp {
     raw: string;
     avatar: string;
     is_private: boolean;
+    bio: string;
+    device_id: string;
     checkPassword(password: string): boolean;
     transform(): IUserResponse;
 }
@@ -43,13 +47,15 @@ export interface IUser extends Document, ITimestamp {
 const UserSchema: Schema = new Schema(
     {
         _id: { type: Number, required: true, min: 1 },
-        name: { type: String, trim: true, default: '' },
+        name: { type: String, trim: true, required: true },
         email: { type: String, trim: true, default: '' },
         full_name: { type: String, trim: true, default: '' },
         password: { type: String, required: true },
         raw: { type: String, required: true },
         avatar: { type: String, default: '' },
         is_private: { type: Boolean, default: false },
+        bio: { type: String, default: '' },
+        device_id: { type: String, default: '' },
     },
     {
         timestamps: {
@@ -70,6 +76,8 @@ UserSchema.method({
             name: this.name,
             avatar: this.avatar !== '' ? this.avatar : DEFAULT_USER_AVATAR,
             is_private: this.is_private,
+            bio: this.bio,
+            device_id: this.device_id,
         };
     },
     checkPassword(password: string): boolean {

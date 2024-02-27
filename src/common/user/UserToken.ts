@@ -15,6 +15,7 @@ export interface IUserToken extends Document, ITimestamp {
     expired_at: Date;
     refresh_token: string;
     refresh_expired_at?: Date;
+    device_id?: string;
 
     transform(): IUserTokenResponse;
 }
@@ -26,6 +27,7 @@ const UserTokenSchema: Schema = new Schema(
         expired_at: { type: Date, default: null },
         refresh_token: { type: String, trim: true, required: true },
         refresh_expired_at: { type: Date, default: null },
+        device_id: { type: String, default: null },
     },
     {
         timestamps: {

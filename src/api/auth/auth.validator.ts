@@ -7,6 +7,7 @@ const limitSchema = Joi.number().integer().positive().max(20).default(20);
 
 export const signIn: schema = {
     body: Joi.object({
+        device_id: Joi.string().required(),
         username: Joi.string().required(),
         password: Joi.string().required(),
     }),
@@ -24,5 +25,15 @@ export const signUp: schema = {
 export const refreshToken: schema = {
     body: Joi.object({
         refresh_token: Joi.string().required(),
+        device_id: Joi.string().required(),
+    }),
+};
+
+export const resetPassword: schema = {
+    body: Joi.object({
+        old_password: Joi.string().required(),
+        new_password: Joi.string().required(),
+        new_duplicated_password: Joi.string().required(),
+        force_logout: Joi.boolean().default(false),
     }),
 };

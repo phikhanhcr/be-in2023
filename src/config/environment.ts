@@ -24,6 +24,6 @@ export const SERVICE_API_KEYS: string[] = process.env.SERVICE_API_KEYS?.split(',
 
 export const JWT_PRIVATE_KEY: string = process.env.JWT_PRIVATE_KEY;
 export const JWT_PUBLIC_KEY: string = process.env.JWT_PUBLIC_KEY;
-export const JWT_EXPIRES_IN: number = parseInt(process.env.JWT_EXPIRES_IN, 10) || 86400;
+export const JWT_EXPIRES_IN: number = parseInt(process.env.JWT_EXPIRES_IN, 10) || 300;
 
 export const RUN_IN_LOCALHOST: boolean = process.env.RUN_IN_LOCALHOST === '1';

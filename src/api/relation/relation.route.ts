@@ -47,7 +47,7 @@ router.post(
 
 // list following
 router.get(
-    '/user-following',
+    '/following',
     AuthMiddleware.requireAuth,
     validate(listFollowing, { context: true }),
     RelationController.listFollowing,

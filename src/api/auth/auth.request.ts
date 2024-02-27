@@ -1,6 +1,7 @@
 export interface ISignInRequest {
     username: string;
     password: string;
+    device_id: string;
 }
 
 export interface ISignUpRequest {
