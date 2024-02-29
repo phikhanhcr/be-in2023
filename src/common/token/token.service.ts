@@ -17,6 +17,7 @@ interface AccessToken {
 
 interface TokenPayload {
     iss: string;
+    iat: number;
     name: string;
     sub: string; // User ID
     device_id: string;
@@ -25,7 +26,7 @@ interface TokenPayload {
 const JWT_ALGORITHM = 'RS256';
 const JWT_ISSUER = 'instagram';
 
-export const buildValidDeviceKey = (auth: IAuthUser) => {
+export const buildValidDevicesKey = (auth: IAuthUser) => {
     return `backend:valid_device:${auth.id}`;
 };
 
@@ -70,6 +71,8 @@ export class TokenService {
             return {
                 id: +tokenInfo.sub,
                 name: tokenInfo.name,
+                device_id: tokenInfo.device_id,
+                iat: tokenInfo.iat,
             };
         } catch (error) {
             logger.error(error);
@@ -92,35 +95,57 @@ export class TokenService {
 
     // store all device id
     static async setAllDeviceId(auth: IAuthUser, device_ids: string, expiredAt: Date): Promise<void> {
-        await RedisAdapter.set(buildValidDeviceKey(auth), device_ids, moment(expiredAt).unix() - moment().unix());
+        await RedisAdapter.set(buildValidDevicesKey(auth), device_ids, moment(expiredAt).unix() - moment().unix());
     }
 
     static async getAllDeviceId(auth: IAuthUser): Promise<string> {
-        return (await RedisAdapter.get(buildValidDeviceKey(auth))) as string;
+        return (await RedisAdapter.get(buildValidDevicesKey(auth))) as string;
     }
 
+    // do quick, there are many ways to store value (table, hash_map, etc... in redis)
     static async addDeviceId(auth: IAuthUser): Promise<void> {
-        const allDevice = (await RedisAdapter.get(buildValidDeviceKey(auth))) as string;
+        const allDevice = (await RedisAdapter.get(buildValidDevicesKey(auth))) as string;
         if (allDevice) {
             const deviceIds = allDevice.split(',');
             if (deviceIds.indexOf(auth.device_id) === -1) {
                 deviceIds.push(auth.device_id);
                 await RedisAdapter.set(
-                    buildValidDeviceKey(auth),
+                    buildValidDevicesKey(auth),
                     deviceIds.join(','),
                     moment().add(JWT_EXPIRES_IN, 's').unix(),
                 );
             }
         } else {
-            await RedisAdapter.set(buildValidDeviceKey(auth), auth.device_id, moment().add(JWT_EXPIRES_IN, 's').unix());
+            await RedisAdapter.set(
+                buildValidDevicesKey(auth),
+                auth.device_id,
+                moment().add(JWT_EXPIRES_IN, 's').unix(),
+            );
+        }
+    }
+
+    static async popDeviceId(auth: IAuthUser, deviceId: string): Promise<void> {
+        const allDevice = (await RedisAdapter.get(buildValidDevicesKey(auth))) as string;
+        if (allDevice) {
+            const deviceIds = allDevice.split(',');
+            const index = deviceIds.indexOf(deviceId);
+            if (index > -1) {
+                deviceIds.splice(index, 1);
+                await RedisAdapter.set(
+                    buildValidDevicesKey(auth),
+                    deviceIds.join(','),
+                    moment().add(JWT_EXPIRES_IN, 's').unix(),
+                );
+            }
         }
     }
 
     static async removeDeviceIds(auth: IAuthUser): Promise<void> {
-        await RedisAdapter.delete(buildValidDeviceKey(auth));
+        await RedisAdapter.delete(buildValidDevicesKey(auth));
     }
 
     // store time expired of device
+    // theo cach nay thi request nao cung se phai gui device id len=
     static async setCurrentAuthDevice(auth: IAuthUser, expiredAt?: Date): Promise<void> {
         if (!expiredAt) {
             expiredAt = moment().add(JWT_EXPIRES_IN, 's').toDate();
@@ -135,5 +160,9 @@ export class TokenService {
 
     static async getCurrentAuthDevice(auth: IAuthUser): Promise<boolean> {
         return !!(await RedisAdapter.get(buildUDeviceKeyAndUserId(auth)));
+    }
+
+    static async removeCurrentAuthDevice(auth: IAuthUser): Promise<void> {
+        await RedisAdapter.delete(buildUDeviceKeyAndUserId(auth));
     }
 }

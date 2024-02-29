@@ -8,6 +8,7 @@ import httpStatus from 'http-status';
 import { ISignInRequest } from './auth.request';
 import logger from '@common/logger';
 import moment from 'moment';
+import { RedisAdapter } from '@common/infrastructure/redis.adapter';
 export class AuthMiddleware {
     static async signIn(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -56,6 +57,21 @@ export class AuthMiddleware {
                         message: 'common.unauthorized',
                         status: httpStatus.UNAUTHORIZED,
                         errorCode: ErrorCode.REQUEST_UNAUTHORIZED,
+                    });
+                }
+                // const getExpiredTimeOfRf = await RedisAdapter.get(`rf_${user.id}`);
+
+                if (
+                    !(await TokenService.getCurrentAuthDevice({
+                        id: user.id,
+                        name: '',
+                        device_id: user.device_id,
+                    }))
+                ) {
+                    throw new APIError({
+                        message: `auth.refresh-token.${httpStatus.BAD_REQUEST}.${ErrorCode.AUTH_REQUEST_NOT_FOUND}`,
+                        status: httpStatus.BAD_REQUEST,
+                        errorCode: ErrorCode.AUTH_REQUEST_NOT_FOUND,
                     });
                 }
                 req.user = user;

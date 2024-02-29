@@ -8,6 +8,7 @@ import { ErrorCode } from '@config/errors';
 import { PasswordHelper } from '@helper/password.helper';
 import { TokenService } from '@common/token/token.service';
 import moment from 'moment';
+import { RedisAdapter } from '@common/infrastructure/redis.adapter';
 
 export interface IProfileResponse extends IUserResponse {
     count_post: number;
@@ -63,15 +64,17 @@ export class UserService {
         user.password = PasswordHelper.generateHash(req.new_password);
         await user.save();
 
+        // await RedisAdapter.set(`auth:rf:${req.refresh_token}`, moment().add(10, 'minutes').unix().toString(), 600);
         if (req.force_logout) {
             const allDevice = await TokenService.getAllDeviceId(auth);
-            console.log({ allDevice });
             await Promise.all([
                 ...allDevice.split(',').map(async (device_id) => {
-                    await TokenService.setCurrentAuthDevice(
-                        { id: auth.id, name: auth.name, device_id },
-                        moment().toDate(),
-                    );
+                    if (device_id !== auth.device_id) {
+                        await Promise.all([
+                            TokenService.popDeviceId(auth, device_id),
+                            TokenService.removeCurrentAuthDevice({ id: auth.id, name: auth.name, device_id }),
+                        ]);
+                    }
                 }),
             ]);
         }

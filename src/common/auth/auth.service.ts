@@ -78,19 +78,31 @@ export class AuthService {
             device_id: user.device_id,
         };
         const accessToken = TokenService.generateAccessToken(auth);
+        // moi lan refresh se store lai thoi gian invalid cua token
+        // now()
+        // jwt chua thong tin create_at (duoc tao ra khi nao, dam bao phai luon lon hon thoi gian luu trong redis cua token)
+        // now
+        // access token chi co han 5p, het 5p phai call lai refresh_token
+        // now ac > now rf
+        // reset password:
+        // set rf +10p => all ac < now rf
+        const rf = crypto.randomBytes(20).toString('hex');
+        // await RedisAdapter.set(`auth:rf:${rf}`, moment().unix().toString(), 600);
+
         const userToken = await UserToken.create(
             new UserToken({
                 user_id: user.id,
                 access_token: accessToken.token,
+                device_id: user.device_id,
                 expired_at: accessToken.expired_at,
-                refresh_token: crypto.randomBytes(20).toString('hex'),
+                refresh_token: rf,
             }),
         );
 
         return userToken;
     }
 
-    static async refreshToken(req: IRefreshToken): Promise<IUserToken> {
+    static async refreshToken(auth: IAuthUser, req: IRefreshToken): Promise<IUserToken> {
         let token = await UserToken.findOne({ refresh_token: req.refresh_token });
         if (!token) {
             throw new APIError({
@@ -129,11 +141,14 @@ export class AuthService {
         // get5 current device id
 
         const accessToken = TokenService.generateAccessToken({ id: user.id, name: user.name });
-        await TokenService.setCurrentAuthDevice(
-            { id: user.id, name: user.name, device_id: req.device_id },
-            // add 1 minute to expired_at
-            moment(accessToken.expired_at).add(1, 'minute').toDate(),
-        );
+
+        await TokenService.setCurrentAuthDevice(auth);
+        // await RedisAdapter.set(`auth:rf:${req.refresh_token}`, moment().unix().toString(), 600);
+        // await TokenService.setCurrentAuthDevice(
+        //     { id: user.id, name: user.name, device_id: req.device_id },
+        //     // add 1 minute to expired_at
+        //     moment(accessToken.expired_at).add(1, 'minute').toDate(),
+        // );
         token = await UserToken.findOneAndUpdate(
             { refresh_token: req.refresh_token },
             {

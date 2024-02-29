@@ -1,7 +1,8 @@
 export interface IAuthUser {
     id: number;
-    name: string;
+    name?: string;
     device_id?: string;
+    iat?: number;
 }
 
 export interface IResetPassword {
@@ -9,6 +10,8 @@ export interface IResetPassword {
     new_password: string;
     new_duplicated_password: string;
     force_logout: boolean;
+    // another approach to force logout
+    refresh_token: string;
 }
 
 export interface IRefreshToken {
