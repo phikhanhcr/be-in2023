@@ -25,7 +25,7 @@ export class DatabaseAdapter {
                 keepAlive: true,
             };
             await mongoose.connect(MONGODB_URI, options);
-            logger.info('Connect to mongodb successfully!');
+            logger.info(`Connect to mongodb ${MONGODB_URI} successfully!`);
         } catch (error) {
             logger.error('Connect to mongodb failed!', error);
             // Exit process with failure

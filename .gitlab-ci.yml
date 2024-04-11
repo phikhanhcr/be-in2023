@@ -1,0 +1,40 @@
+image: docker:19.03.12
+
+stages:
+  - build
+  - deploy
+
+variables:
+  RUNTIME_IMAGE_TAG: runtime-$CI_COMMIT_SHORT_SHA
+  RUNTIME_IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:runtime-$CI_COMMIT_SHORT_SHA
+  BUILDER_IMAGE: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME/builder:latest
+  APP_NAME: instagram
+
+.build_template:
+  # services:
+  #   - docker:19.03.12-dind
+  stage: build
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker pull $BUILDER_IMAGE || echo "Building builder from scratch"
+    # - >
+    #   docker build 
+    #   --target=builder 
+    #   --cache-from $BUILDER_IMAGE 
+    #   -t $BUILDER_IMAGE .
+    - >
+      docker build
+      --cache-from $BUILDER_IMAGE
+      --build-arg GIT_COMMIT_TAG="$CI_COMMIT_SHA $(date)"
+      -t $RUNTIME_IMAGE .
+    # - docker push $BUILDER_IMAGE
+    - docker push $RUNTIME_IMAGE
+
+# Development pipeline
+
+build_staging_v1_2:
+  extends: .build_template
+  environment:
+    name: main
+  only:
+    - main

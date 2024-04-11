@@ -33,7 +33,6 @@ export class AuthService {
                 errorCode: ErrorCode.AUTH_REQUEST_PASSWORD_INVALID,
             });
         }
-        console.log({ user });
         return user;
     }
 

@@ -19,11 +19,11 @@ export class TestController {
             //     path: 'user_sender',
             //     select: 'name avatar',
             // });
-            const data = await UserService.getProfileByUsername('sykhanhsky@gmail.com');
+            // const data = await UserService.getProfileByUsername('sykhanhsky@gmail.com');
             // console.log({ data: data.user_sender });
             res.sendJson({
                 message: 'Operation executed successfully!',
-                data,
+                data: {},
             });
         } catch (error) {
             next(error);
